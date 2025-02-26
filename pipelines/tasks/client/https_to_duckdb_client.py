@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from pipelines.tasks.client.duckdb_client import DuckDBClient
@@ -6,21 +7,19 @@ from pipelines.tasks.config.common import (
     CACHE_FOLDER,
     logger,
 )
-from pipelines.tasks.config.config_insee import get_insee_config
 
 
-class InseeClient(HTTPSClient):
-    def __init__(
-        self, base_url="https://www.insee.fr/fr/statistiques/fichier/7766585/"
-    ):
-        super().__init__(base_url)
-        self.config = get_insee_config()
+class HTTPSToDuckDBClient(HTTPSClient):
+    def __init__(self, config):
+        super().__init__(config["source"]["base_url"])
+        self.config = config
 
     def process_datasets(self):
         """Process the COG datasets"""
         # Process data
         logger.info("Launching processing of Insee communes")
 
+        os.makedirs(CACHE_FOLDER, exist_ok=True)
         self.download_file_from_https(
             path=self.config["source"]["id"],
             filepath=Path(CACHE_FOLDER, self.config["file"]["file_name"]),
@@ -36,3 +35,4 @@ class InseeClient(HTTPSClient):
             dataset_datetime=self.config["source"]["datetime"],
             filepath=Path(CACHE_FOLDER, self.config["file"]["file_name"]),
         )
+        # duckdb_client.close()

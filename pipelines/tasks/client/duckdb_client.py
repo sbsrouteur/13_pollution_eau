@@ -115,19 +115,17 @@ class DuckDBClient:
             query = f"CREATE TABLE {table_name} AS "
         else:
             raise ValueError("ingest_type parameter needs to be INSERT or CREATE")
-
-        query = (
-            query
-            + f"""
-            SELECT
-                *,
-                CAST({de_partition} AS INTEGER)     AS de_partition,
-                current_date                        AS de_ingestion_date,
-                {dataset_datetime}                  AS de_dataset_datetime
-            FROM read_csv('{filepath}', header=true, delim=',');
-        """
+        query_select = """
+                SELECT
+                    *,
+                    CAST(? AS INTEGER)      AS de_partition,
+                    current_date            AS de_ingestion_date,
+                    ?                       AS de_dataset_datetime
+                FROM read_csv(?, header=true, delim=',');
+            """
+        self.conn.execute(
+            query + query_select, (de_partition, dataset_datetime, str(filepath))
         )
-        self.conn.execute(query)
         return True
 
     def close(self):
