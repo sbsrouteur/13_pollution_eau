@@ -46,8 +46,8 @@ models:
         description: Nombre unique des codes CAS à cdparametresiseeaux
         type: SMALLINT
       - name: nb_categorie
-        description: Nombre unique des codes CAS à cdparametresiseeaux
+        description: Nombre unique categorie à cdparametresiseeaux - DOIT être égal à 1
         type: SMALLINT
         tests:
           - accepted_values:
-              values:[1]
+              values: [1]
