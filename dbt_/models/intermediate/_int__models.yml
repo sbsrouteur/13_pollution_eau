@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: int__mapping_categorie_uniques
+  - name: int__mapping_category_simple
     description: "Liste des cdparametresiseeaux unique avec categorisation"
     columns:
       - name: cdparametresiseeaux
@@ -15,36 +15,6 @@ models:
       - name: categorie
         description: "Catégorie du paramètre (pesticides, nitrites, etc.)"
         type: VARCHAR
-      - name: cdparametre_list
-        description: >
-          Liste unique des codes SANDRE associés à cdparametresiseeaux
-          Le code SANDRE du paramètre est l'identifiant numérique attribué par le Service d’administration nationale des
-          données et référentiels sur l’eau (SANDRE) à chaque paramètre enregistré par le SANDRE
-        type: INTEGER
-      - name: libmajparametre_list
-        description: Liste unique des Nom du paramètre en majuscule associés à cdparametresiseeaux
-        type: VARCHAR
-      - name: libminparametre_list
-        description: Liste unique des Nom du paramètre en minuscule associés à cdparametresiseeaux
-        type: VARCHAR
-      - name: casparam_list
-        description: > 
-          Liste unique des codes CAS associés à cdparametresiseeaux
-          Code CAS (Chemical Abstract Service) du paramètre : code international des produits 
-          chimiques et matières dangereuses.
-        type: NUMERIC
-      - name: nb_cdparametre 
-        description: Nombre unique des codes SANDRE associés à cdparametresiseeaux
-        type: SMALLINT
-      - name: nb_libmajparametre 
-        description: Nombre unique des Nom du paramètre en majuscule à cdparametresiseeaux
-        type: SMALLINT
-      - name: nb_libminparametre 
-        description: Nombre unique des Nom du paramètre en minuscule à cdparametresiseeaux
-        type: SMALLINT
-      - name: nb_casparam 
-        description: Nombre unique des codes CAS à cdparametresiseeaux
-        type: SMALLINT
       - name: nb_categorie
         description: Nombre unique categorie à cdparametresiseeaux - DOIT être égal à 1
         type: SMALLINT
