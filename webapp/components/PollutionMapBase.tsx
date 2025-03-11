@@ -18,6 +18,7 @@ import {
   ZONE_MARTINIQUE,
   ZONE_MAYOTTE,
   ZONE_METROPOLE,
+  ZONE_NOZONE,
 } from "./MapZoneSelector";
 
 type PollutionMapBaseLayerProps = {
@@ -26,6 +27,7 @@ type PollutionMapBaseLayerProps = {
   selectedCommune: any | null;
   onFeatureClick: (feature: any) => void;
   centerOnZone: number | null;
+  resetZone: () => void;
 };
 
 export default function PollutionMapBaseLayer({
@@ -34,6 +36,7 @@ export default function PollutionMapBaseLayer({
   selectedCommune,
   onFeatureClick,
   centerOnZone,
+  resetZone,
 }: PollutionMapBaseLayerProps) {
   const [zone, setZone] = useState<number | null>(null);
   const mapRef = useRef(null);
@@ -57,15 +60,9 @@ export default function PollutionMapBaseLayer({
   }
 
   useEffect(() => {
-    if (mapRef && centerOnZone !== zone) {
+    if (mapRef && centerOnZone !== ZONE_NOZONE) {
       setZone(centerOnZone);
-      console.log("recentre", centerOnZone);
-      console.log(
-        "pos ",
-        mapRef?.current?.getBounds(),
-        "zoom",
-        mapRef?.current?.getZoom(),
-      );
+
       let newMapCenter: number[];
       let newZoomFactor: number;
 
@@ -97,8 +94,7 @@ export default function PollutionMapBaseLayer({
           break;
       }
 
-      if (mapRef.current) {
-        console.log("fly to ", newMapCenter, newZoomFactor);
+      if (mapRef.current && zone !== ZONE_NOZONE) {
         mapRef.current.flyTo({ center: newMapCenter, zoom: newZoomFactor });
       }
     }
@@ -145,6 +141,13 @@ export default function PollutionMapBaseLayer({
     } as maplibregl.StyleSpecification;
   }, [propertyId, selectedCommune]);
 
+  function onMoveEnd(e: ViewStateChangeEvent): void {
+    if (e.originalEvent) {
+      setZone(ZONE_NOZONE);
+      resetZone();
+    }
+  }
+
   return (
     <ReactMapGl
       style={{ width: "100%", height: "100%" }}
@@ -152,6 +155,7 @@ export default function PollutionMapBaseLayer({
       initialViewState={MAPLIBRE_MAP.initialViewState}
       mapLib={maplibregl}
       onClick={onClick}
+      onMoveEnd={onMoveEnd}
       interactiveLayerIds={["polluants"]}
       ref={mapRef}
     />

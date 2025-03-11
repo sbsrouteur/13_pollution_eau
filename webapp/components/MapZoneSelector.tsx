@@ -1,12 +1,13 @@
 import { Fragment, MouseEventHandler } from "react";
 import { Button } from "./ui/button";
 
-export const ZONE_METROPOLE = 0;
-export const ZONE_GUADELOUPE = 1;
-export const ZONE_MARTINIQUE = 2;
-export const ZONE_MAYOTTE = 3;
-export const ZONE_LAREUNION = 4;
-export const ZONE_GUYANE = 5;
+export const ZONE_NOZONE = 0
+export const ZONE_METROPOLE = 1;
+export const ZONE_GUADELOUPE = 2;
+export const ZONE_MARTINIQUE = 3;
+export const ZONE_MAYOTTE = 4;
+export const ZONE_LAREUNION = 5;
+export const ZONE_GUYANE = 6;
 
 export default function MapZoneSelector(props: {
   zoneChangeCallback: (zone: number) => void | null;
