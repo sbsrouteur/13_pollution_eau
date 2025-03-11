@@ -14,13 +14,12 @@ export default function PollutionMap() {
   const [categoryType, setCategoryType] = useState("cvm");
   const [selectedCommune, setSelectedCommune] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
-  const [zoneRecenter,setZoneRecenter]=useState<number|null>(null)
+  const [zoneRecenter, setZoneRecenter] = useState<number | null>(null);
 
-  function handleZoneChangeRequest(zone: number): void | null {
-    setZoneRecenter(zone)
+  function handleZoneChangeRequest(zone: number): void {
+    setZoneRecenter(zone);
   }
 
-  console.log("map center", zoneRecenter)
   return (
     <div className="relative w-full h-full flex flex-col">
       <PollutionMapBaseLayer

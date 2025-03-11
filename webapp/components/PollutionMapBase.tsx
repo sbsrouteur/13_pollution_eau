@@ -13,7 +13,7 @@ import {
 } from "@/app/config";
 import {
   ZONE_GUADELOUPE,
-  ZONE_GUYANNE,
+  ZONE_GUYANE,
   ZONE_LAREUNION,
   ZONE_MARTINIQUE,
   ZONE_MAYOTTE,
@@ -35,7 +35,7 @@ export default function PollutionMapBaseLayer({
   onFeatureClick,
   centerOnZone,
 }: PollutionMapBaseLayerProps) {
-  const [zone, setZone] = useState<string | null>(null);
+  const [zone, setZone] = useState<number | null>(null);
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -56,46 +56,53 @@ export default function PollutionMapBaseLayer({
     }
   }
 
-  if (mapRef && centerOnZone !== zone) {
-    setZone(centerOnZone);
-console.log("recentre", centerOnZone)
-console.log("pos ",  mapRef?.current?.getBounds(),"zoom", mapRef?.current?.getZoom())
-    let newMapCenter: number[] = null;
-    let newZoomFactor: number = null;
+  useEffect(() => {
+    if (mapRef && centerOnZone !== zone) {
+      setZone(centerOnZone);
+      console.log("recentre", centerOnZone);
+      console.log(
+        "pos ",
+        mapRef?.current?.getBounds(),
+        "zoom",
+        mapRef?.current?.getZoom(),
+      );
+      let newMapCenter: number[];
+      let newZoomFactor: number;
 
-    switch (centerOnZone) {
-      case ZONE_GUADELOUPE:
-        newMapCenter = [-61.5, 16.2];
-        newZoomFactor = 9;
-        break;
-      case ZONE_LAREUNION:
-        newMapCenter = [55.5, -21.2];
-        newZoomFactor = 8;
-        break;
-      case ZONE_MARTINIQUE:
-        newMapCenter = [-61,14.7];
-        newZoomFactor = 9;
-        break;
-      case ZONE_MAYOTTE:
-        newMapCenter = [45, -12.75];
-        newZoomFactor = 9;
-        break;
-      case ZONE_GUYANNE:
-        newMapCenter = [-52.7, 4.3];
-        newZoomFactor = 6;
-        break;
-      case ZONE_METROPOLE:
-      default:
-        newMapCenter = [2.5,46.2];
-        newZoomFactor = 5;
-        break;
-    }
+      switch (centerOnZone) {
+        case ZONE_GUADELOUPE:
+          newMapCenter = [-61.5, 16.2];
+          newZoomFactor = 9;
+          break;
+        case ZONE_LAREUNION:
+          newMapCenter = [55.5, -21.2];
+          newZoomFactor = 8;
+          break;
+        case ZONE_MARTINIQUE:
+          newMapCenter = [-61, 14.7];
+          newZoomFactor = 9;
+          break;
+        case ZONE_MAYOTTE:
+          newMapCenter = [45, -12.75];
+          newZoomFactor = 9;
+          break;
+        case ZONE_GUYANE:
+          newMapCenter = [-52.7, 4.3];
+          newZoomFactor = 6;
+          break;
+        case ZONE_METROPOLE:
+        default:
+          newMapCenter = [2.5, 46.2];
+          newZoomFactor = 5;
+          break;
+      }
 
-    if (mapRef.current) {
-      console.log("fly to ", newMapCenter, newZoomFactor);
-      mapRef.current.flyTo({ center: newMapCenter, zoom: newZoomFactor });
+      if (mapRef.current) {
+        console.log("fly to ", newMapCenter, newZoomFactor);
+        mapRef.current.flyTo({ center: newMapCenter, zoom: newZoomFactor });
+      }
     }
-  }
+  }, [mapRef, centerOnZone, zone]);
 
   useEffect(() => {
     if (selectedCommune) {
