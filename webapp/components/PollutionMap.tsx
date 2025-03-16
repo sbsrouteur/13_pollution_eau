@@ -45,7 +45,7 @@ export default function PollutionMap() {
 
       <div className="absolute top-4 left-4 right-4 z-10 bg-white p-3 rounded-lg shadow-lg flex justify-between">
         <div className="grid-col-4"><div className="row">
-          <PollutionMapSearchBox class="grid-span-2"
+          <PollutionMapSearchBox class="col-span-2"
             communeInseeCode={communeInseeCode}
             onCommuneFilter={handleCommuneSelect}
           />
