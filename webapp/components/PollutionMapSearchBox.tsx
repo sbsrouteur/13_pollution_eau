@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { useState } from "react";
 import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
 import { CommandEmpty } from "cmdk";
-import { X } from "lucide-react";
+import { Building2, Home, X } from "lucide-react";
 
 interface IGNQueryResult {
   type: string;
@@ -47,7 +47,7 @@ export default function PollutionMapSearchBox({
 
   async function PerformSearch(filterString: string) {
     const IGNQuery =
-      "https://data.geopf.fr/geocodage/search?autocomplete=1&limit=10&returntruegeometry=false&type=municipality&category=commune";
+      "https://data.geopf.fr/geocodage/search?autocomplete=1&limit=10&returntruegeometry=false";
     const URLIGN = new URL(IGNQuery);
     URLIGN.searchParams.set("q", filterString);
 
@@ -144,22 +144,42 @@ export default function PollutionMapSearchBox({
                 </CommandEmpty>
                 <CommandList>
                   <CommandGroup key="CommuneList">
-                    {communesList.map((CommuneFeature) => (
-                      <CommandItem
-                        key={CommuneFeature.properties.id}
-                        onSelect={() => handleCommuneSelect(CommuneFeature)}
-                      >
-                        <HilightLabel
-                          originalText={
-                            CommuneFeature.properties.name +
-                            " (" +
-                            CommuneFeature.properties.postcode +
-                            ")"
-                          }
-                          textToHilight={filterString}
-                        />
-                      </CommandItem>
-                    ))}
+                    {communesList.map((CommuneFeature) => {
+                      let featureType = null;
+                      switch (CommuneFeature.properties.type) {
+                        case "street":
+                          featureType = <Home />;
+                          break;
+                        case "municipality":
+                          featureType = <Building2 />;
+                          break;
+
+                        default:
+                          featureType = null;
+                          console.log(
+                            "unexpected feature type",
+                            CommuneFeature,
+                          );
+                      }
+                      return (
+                        <CommandItem
+                          key={CommuneFeature.properties.id}
+                          onSelect={() => handleCommuneSelect(CommuneFeature)}
+                        >
+                          <div className="grid grid-col-3">
+                            <div className="row">
+                              {featureType}
+
+                              <HilightLabel
+                                originalText={CommuneFeature.properties.label}
+                                textToHilight={filterString}
+                              />
+                              
+                            </div>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
                   </CommandGroup>
                 </CommandList>
               </Command>
