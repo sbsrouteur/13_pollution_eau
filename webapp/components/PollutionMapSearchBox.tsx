@@ -113,7 +113,7 @@ export default function PollutionMapSearchBox({
   }
 
   return (
-    <div className="flex items-center space-x-6">
+    <div className="flex grow items-center space-x-6">
       <div>
         <label
           htmlFor="commune-select"
@@ -125,7 +125,7 @@ export default function PollutionMapSearchBox({
           <Popover open={dropDownIsOpened} onOpenChange={setDropDownOpen}>
             <PopoverAnchor asChild>
               <Input
-                className="float max-w-fit rounded-sm outline-1 outline-blue-500 pr-8"
+                className=" float rounded-sm outline-1 outline-blue-500 pr-8"
                 key="TextInputCommune"
                 value={filterString}
                 placeholder="Saisir le nom de votre commune"
@@ -148,9 +148,11 @@ export default function PollutionMapSearchBox({
                       let featureType = null;
                       switch (CommuneFeature.properties.type) {
                         case "street":
+                        case "housenumber":
                           featureType = <Home />;
                           break;
                         case "municipality":
+                        case "locality":
                           featureType = <Building2 />;
                           break;
 
@@ -166,15 +168,13 @@ export default function PollutionMapSearchBox({
                           key={CommuneFeature.properties.id}
                           onSelect={() => handleCommuneSelect(CommuneFeature)}
                         >
-                          <div className="grid grid-col-3">
-                            <div className="row">
-                              {featureType}
-
+                          <div className="flex">
+                            <div className="size-5">{featureType}</div>
+                            <div className="grow gap-2">
                               <HilightLabel
                                 originalText={CommuneFeature.properties.label}
                                 textToHilight={filterString}
                               />
-                              
                             </div>
                           </div>
                         </CommandItem>
