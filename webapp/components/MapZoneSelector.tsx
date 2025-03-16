@@ -1,7 +1,7 @@
 import { Fragment, MouseEventHandler } from "react";
 import { Button } from "./ui/button";
 
-export const ZONE_NOZONE = 0
+export const ZONE_NOZONE = 0;
 export const ZONE_METROPOLE = 1;
 export const ZONE_GUADELOUPE = 2;
 export const ZONE_MARTINIQUE = 3;
@@ -14,7 +14,7 @@ export default function MapZoneSelector(props: {
 }) {
   function handleClick(h: MouseEventHandler<HTMLButtonElement>): void {
     if (props.zoneChangeCallback) {
-      const numZone: number = parseInt( h.currentTarget.getAttribute("value"));
+      const numZone: number = parseInt(h.currentTarget.getAttribute("value"));
       props.zoneChangeCallback(numZone);
     }
   }
