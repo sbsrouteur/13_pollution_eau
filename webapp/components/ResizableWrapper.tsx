@@ -8,7 +8,7 @@ export const ResizableWrapper = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [dimensions, setDimensions] = useState({ width: window.innerWidth-50, height: window.innerHeight -80});
+  const [dimensions, setDimensions] = useState({ width: 500, height: 400 });
   const [isResizing, setIsResizing] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rafRef = useRef<number | null>(null);
