@@ -96,12 +96,12 @@ export default function PollutionMapSearchBox({
   function handleCommuneSelect(feature: IGNQueryResult) {
     setDropDownOpen(false);
     setFilterString(
-      feature.properties.name + " (" + feature.properties.postcode + ")",
+      feature.properties.label ,
     );
     onCommuneFilter({
       center: feature.geometry.coordinates,
       zoom: 10,
-      communeInseeCode: feature.properties.id,
+      communeInseeCode: feature.properties.citycode,
     });
   }
 
