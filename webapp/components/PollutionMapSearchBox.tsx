@@ -95,9 +95,7 @@ export default function PollutionMapSearchBox({
 
   function handleCommuneSelect(feature: IGNQueryResult) {
     setDropDownOpen(false);
-    setFilterString(
-      feature.properties.label ,
-    );
+    setFilterString(feature.properties.label);
     onCommuneFilter({
       center: feature.geometry.coordinates,
       zoom: 10,
@@ -114,18 +112,18 @@ export default function PollutionMapSearchBox({
 
   return (
     <div className="flex grow items-center space-x-6">
-      <div>
+      <div className="w-full">
         <label
           htmlFor="commune-select"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
           Commune
         </label>
-        <div className="relative">
+        <div className="relative ">
           <Popover open={dropDownIsOpened} onOpenChange={setDropDownOpen}>
             <PopoverAnchor asChild>
               <Input
-                className=" float rounded-sm outline-1 outline-blue-500 pr-8"
+                className="rounded-sm outline-1 outline-blue-500 pr-8"
                 key="TextInputCommune"
                 value={filterString}
                 placeholder="Saisir le nom de votre commune"
@@ -138,11 +136,11 @@ export default function PollutionMapSearchBox({
               align="start"
               sideOffset={5}
             >
-              <Command>
+              <Command className="flex w-full">
                 <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                   Aucune commune trouvée.
                 </CommandEmpty>
-                <CommandList>
+                <CommandList className="grow">
                   <CommandGroup key="CommuneList">
                     {communesList.map((CommuneFeature) => {
                       let featureType = null;
@@ -165,12 +163,13 @@ export default function PollutionMapSearchBox({
                       }
                       return (
                         <CommandItem
+                          className="flex grow"
                           key={CommuneFeature.properties.id}
                           onSelect={() => handleCommuneSelect(CommuneFeature)}
                         >
-                          <div className="flex">
+                          <div className="flex grow">
                             <div className="size-5">{featureType}</div>
-                            <div className="grow gap-2">
+                            <div className="grow gap-2 fit">
                               <HilightLabel
                                 originalText={CommuneFeature.properties.label}
                                 textToHilight={filterString}
