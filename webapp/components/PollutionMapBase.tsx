@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo,  useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMapGl, {
   MapLayerMouseEvent,
   ViewStateChangeEvent,
@@ -9,10 +9,7 @@ import maplibregl, { MapGeoJSONFeature } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Protocol } from "pmtiles";
 
-import {
-  DEFAULT_MAP_STYLE,
-  getDefaultLayers,
-} from "@/app/config";
+import { DEFAULT_MAP_STYLE, getDefaultLayers } from "@/app/config";
 import {
   ZONE_GUADELOUPE,
   ZONE_GUYANE,
