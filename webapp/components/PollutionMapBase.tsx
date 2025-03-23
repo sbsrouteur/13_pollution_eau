@@ -117,7 +117,6 @@ export default function PollutionMapBaseLayer({
         latitude: e.viewState.latitude,
         zoom: e.viewState.zoom,
       });
-      resetZone();
     }
   }
 

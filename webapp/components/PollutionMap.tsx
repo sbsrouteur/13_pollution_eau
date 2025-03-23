@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PollutionMapBaseLayer from "@/components/PollutionMapBase";
 import PollutionMapFilters from "@/components/PollutionMapFilters";
 import PollutionMapDetailPanel from "@/components/PollutionMapDetailPanel";
@@ -22,8 +22,7 @@ export default function PollutionMap() {
   const [communeInseeCode, setCommuneInseeCode] = useState<string | null>(null);
   const [featureDetails, setFeatureDetails] =
     useState<MapGeoJSONFeature | null>(null);
-
-    const [centerOnZone,setCenterOnZone]=useState<number>(ZONE_NOZONE)
+  const [centerOnZone, setCenterOnZone] = useState<number>(ZONE_NOZONE);
 
   const handleCommuneSelect = (result: CommuneFilterResult | null) => {
     if (result) {
@@ -35,7 +34,9 @@ export default function PollutionMap() {
     }
   };
 
-
+  useEffect(()=>{
+    console.log("changing zone to ",centerOnZone)
+  },[centerOnZone])
 
   return (
     <div className="relative w-full h-full flex flex-col">
@@ -47,7 +48,9 @@ export default function PollutionMap() {
         onMapStateChange={setMapState}
         onFeatureClick={setFeatureDetails}
         centerOnZone={centerOnZone}
-        resetZone={()=>{setCenterOnZone(ZONE_NOZONE)}}
+        resetZone={() => {
+          setCenterOnZone(ZONE_NOZONE);
+        }}
       />
 
       <div className="absolute top-4 left-4 right-4 z-10 bg-white p-3 rounded-lg shadow-lg flex justify-between">
@@ -63,8 +66,11 @@ export default function PollutionMap() {
         />
       </div>
 
-      <div className="absolute bottom-4 left-4 bg-green-100 opacity-35 p-3 rounded-lg shadow-lg flex justify-between hover:opacity-100">
-        <MapZoneSelector zoneChangeCallback={setCenterOnZone} />
+      <div className="absolute top-24 right-12 z-10  p-3 ">
+        <MapZoneSelector
+          zoneChangeCallback={setCenterOnZone}
+          selectedZone={centerOnZone}
+        />
       </div>
 
       {/* <div className="absolute bottom-6 right-4 z-10 bg-white p-3 rounded-lg shadow-lg">
