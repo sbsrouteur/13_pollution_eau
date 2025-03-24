@@ -13,7 +13,7 @@ export const ZONE_GUYANE = 6;
 
 export default function MapZoneSelector(props: {
   selectedZone: number;
-  zoneChangeCallback: (zone: number) => void | null;
+  zoneChangeCallback: (zone: number) => void;
 }) {
   function handleClick(h: MouseEventHandler<HTMLButtonElement>): void {
     if (props.zoneChangeCallback) {
