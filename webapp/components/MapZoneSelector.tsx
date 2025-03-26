@@ -1,7 +1,10 @@
+"use client";
 import { MouseEventHandler, useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 
 import tailwindConfig from "@/tailwind.config";
+import { TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { Tooltip } from "@radix-ui/react-tooltip";
 
 export const ZONE_NOZONE = 0;
 export const ZONE_METROPOLE = 1;
@@ -23,24 +26,25 @@ export default function MapZoneSelector(props: {
   }
 
   const DROMS = [
-    ZONE_METROPOLE,
-    ZONE_GUADELOUPE,
-    ZONE_MARTINIQUE,
-    ZONE_GUYANE,
-    ZONE_MAYOTTE,
-    ZONE_LAREUNION,
+    { id: ZONE_METROPOLE, tooltip: "Métropole" },
+    { id: ZONE_GUADELOUPE, tooltip: "Guadeloupe" },
+    { id: ZONE_MARTINIQUE, tooltip: "Martinique" },
+    { id: ZONE_GUYANE, tooltip: "Guyane" },
+    { id: ZONE_MAYOTTE, tooltip: "Mayotte" },
+    { id: ZONE_LAREUNION, tooltip: "La réunion" },
   ];
 
   return (
     <>
       <div className="grid gap-2">
         <div className="row w-3 grid-cols-1 gap-2 space-y-2">
-          {DROMS.map((idZone: number) => {
+          {DROMS.map((zone: { id: number; tooltip: string }) => {
             return (
               <DROMButton
-                key={"DROM_" + idZone}
-                zone={idZone}
-                selected={props.selectedZone == idZone}
+                key={"DROM_" + zone.id}
+                zone={zone.id}
+                tooltip={zone.tooltip}
+                selected={props.selectedZone == zone.id}
                 onClick={handleClick}
               />
             );
@@ -53,6 +57,7 @@ export default function MapZoneSelector(props: {
 
 function DROMButton(props: {
   zone: number;
+  tooltip: string;
   selected: boolean;
   onclick: (e: MouseEventHandler<HTMLButtonElement>) => void;
 }) {
@@ -139,15 +144,22 @@ function DROMButton(props: {
   );
 
   return (
-    <Button
-      className={buttonClasses}
-      onClick={props.onClick}
-      value={props.zone}
-    >
-      <div
-        className="w-3 h-3"
-        dangerouslySetInnerHTML={{ __html: svgContent }}
-      />
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          className={buttonClasses}
+          onClick={props.onClick}
+          value={props.zone}
+        >
+          <div
+            className="w-3 h-3"
+            dangerouslySetInnerHTML={{ __html: svgContent }}
+          />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent className="bg-white text-custom-drom">{props.tooltip}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
