@@ -34,10 +34,6 @@ export default function PollutionMap() {
     }
   };
 
-  useEffect(() => {
-    console.log("changing zone to ", centerOnZone);
-  }, [centerOnZone]);
-
   return (
     <div className="relative w-full h-full flex flex-col">
       <PollutionMapBaseLayer
