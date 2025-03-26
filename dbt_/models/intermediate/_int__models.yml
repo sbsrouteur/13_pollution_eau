@@ -215,7 +215,6 @@ models:
           signifiant.
         tests:
           - not_null
-
       - name: valtraduite
         description: >
           A noter qu'une correction a été appliquée par rapport au valtraduite de la source de donnée.
