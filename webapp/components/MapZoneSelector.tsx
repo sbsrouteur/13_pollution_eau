@@ -146,19 +146,21 @@ function DROMButton(props: {
   return (
     <TooltipProvider>
       <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          className={buttonClasses}
-          onClick={props.onClick}
-          value={props.zone}
-        >
-          <div
-            className="w-3 h-3"
-            dangerouslySetInnerHTML={{ __html: svgContent }}
-          />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent className="bg-white text-custom-drom">{props.tooltip}</TooltipContent>
+        <TooltipTrigger asChild>
+          <Button
+            className={buttonClasses}
+            onClick={props.onClick}
+            value={props.zone}
+          >
+            <div
+              className="w-3 h-3"
+              dangerouslySetInnerHTML={{ __html: svgContent }}
+            />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent className="bg-white text-custom-drom">
+          {props.tooltip}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
