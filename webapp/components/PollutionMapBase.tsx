@@ -67,7 +67,7 @@ export default function PollutionMapBaseLayer({
   }
 
   useEffect(() => {
-    if (mapRef && centerOnZone !== ZONE_NOZONE) {
+    if (mapRef && centerOnZone) {
       setZone(centerOnZone);
 
       let newMapCenter: number[];
@@ -101,7 +101,7 @@ export default function PollutionMapBaseLayer({
           break;
       }
 
-      if (mapRef.current && zone !== ZONE_NOZONE) {
+      if (mapRef.current) {
         mapRef.current.flyTo({ center: newMapCenter, zoom: newZoomFactor });
       }
     }
