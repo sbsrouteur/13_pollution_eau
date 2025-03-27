@@ -47,7 +47,7 @@ export default function PollutionMapSearchBox({
 
   async function PerformSearch(filterString: string) {
     const IGNQuery =
-      "https://data.geopf.fr/geocodage/search?autocomplete=1&limit=10&returntruegeometry=false";
+      "https://data.geopf.fr/geocodage/search?autocomplete=1&limit=20&returntruegeometry=false";
     const URLIGN = new URL(IGNQuery);
     URLIGN.searchParams.set("q", filterString);
 
@@ -149,17 +149,9 @@ export default function PollutionMapSearchBox({
                         case "housenumber":
                           featureType = <Home />;
                           break;
-                        case "municipality":
-                        case "locality":
-                          featureType = <Building2 />;
-                          break;
-
                         default:
                           featureType = null;
-                          console.log(
-                            "unexpected feature type",
-                            CommuneFeature,
-                          );
+                          return null
                       }
                       return (
                         <CommandItem
