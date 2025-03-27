@@ -151,7 +151,7 @@ export default function PollutionMapSearchBox({
                           break;
                         default:
                           featureType = null;
-                          return null
+                          return null;
                       }
                       return (
                         <CommandItem
