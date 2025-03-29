@@ -29,6 +29,7 @@ export default function PollutionMap() {
       const { center, zoom, communeInseeCode } = result;
       setMapState({ longitude: center[0], latitude: center[1], zoom });
       setCommuneInseeCode(communeInseeCode);
+      LookupUDI(center);
     } else {
       setCommuneInseeCode(null);
     }
@@ -88,4 +89,16 @@ export default function PollutionMap() {
       )}
     </div>
   );
+}
+
+async function LookupUDI(center: [number, number]) {
+  /*try {
+    const fecthUrl =
+      "/api/UDILookup?Lon=" + center[0] + "&Lat=" + center[1] + "";
+    console.log("Lookup UDI", fecthUrl);
+    const response = await fetch(fecthUrl);
+    const UDIInfo = await response.json();
+
+    alert("UDI "+UDIInfo.nomUDI)
+  } catch (ex) {}*/
 }
