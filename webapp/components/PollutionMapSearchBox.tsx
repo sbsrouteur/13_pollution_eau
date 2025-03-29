@@ -29,15 +29,16 @@ export type CommuneFilterResult = {
   center: [number, number];
   zoom: number;
   communeInseeCode: string;
+  address: string;
 };
 
 interface PollutionMapsSearchBoxProps {
-  onCommuneFilter: (communeFilter: CommuneFilterResult | null) => void;
+  onAddressFilter: (communeFilter: CommuneFilterResult | null) => void;
   communeInseeCode: string | null;
 }
 
 export default function PollutionMapSearchBox({
-  onCommuneFilter,
+  onAddressFilter: onCommuneFilter,
   //communeInseeCode,
 }: PollutionMapsSearchBoxProps) {
   const [filterString, setFilterString] = useState("");
@@ -93,13 +94,14 @@ export default function PollutionMapSearchBox({
     }
   }
 
-  function handleCommuneSelect(feature: IGNQueryResult) {
+  function handleAddressSelect(feature: IGNQueryResult) {
     setDropDownOpen(false);
     setFilterString(feature.properties.label);
     onCommuneFilter({
       center: feature.geometry.coordinates,
       zoom: 10,
       communeInseeCode: feature.properties.citycode,
+      address: feature.properties.label,
     });
   }
 
@@ -157,7 +159,7 @@ export default function PollutionMapSearchBox({
                         <CommandItem
                           className="flex grow"
                           key={CommuneFeature.properties.id}
-                          onSelect={() => handleCommuneSelect(CommuneFeature)}
+                          onSelect={() => handleAddressSelect(CommuneFeature)}
                         >
                           <div className="flex grow">
                             <div className="size-5">{featureType}</div>

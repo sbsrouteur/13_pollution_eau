@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import PollutionMapBaseLayer from "@/components/PollutionMapBase";
+import { useState } from "react";
+import PollutionMapBaseLayer, {
+  AddressInfos,
+} from "@/components/PollutionMapBase";
 import PollutionMapFilters from "@/components/PollutionMapFilters";
 import PollutionMapDetailPanel from "@/components/PollutionMapDetailPanel";
 import PollutionMapSearchBox, {
@@ -23,15 +25,22 @@ export default function PollutionMap() {
   const [featureDetails, setFeatureDetails] =
     useState<MapGeoJSONFeature | null>(null);
   const [centerOnZone, setCenterOnZone] = useState<number>(ZONE_NOZONE);
+  const [addressCoords, setAddressCoords] = useState<AddressInfos | null>(null);
 
-  const handleCommuneSelect = (result: CommuneFilterResult | null) => {
+  const handleAddressSelect = (result: CommuneFilterResult | null) => {
     if (result) {
-      const { center, zoom, communeInseeCode } = result;
+      const { center, zoom, communeInseeCode, address } = result;
       setMapState({ longitude: center[0], latitude: center[1], zoom });
       setCommuneInseeCode(communeInseeCode);
       LookupUDI(center);
+      setAddressCoords({
+        lon: center[0],
+        lat: center[1],
+        AddressName: address,
+      });
     } else {
       setCommuneInseeCode(null);
+      setAddressCoords(null);
     }
   };
 
@@ -48,6 +57,7 @@ export default function PollutionMap() {
         resetZone={() => {
           setCenterOnZone(ZONE_NOZONE);
         }}
+        selectedAddressCoords={addressCoords}
       />
 
       <div className="absolute top-4 left-4 right-4 z-10 bg-white p-3 rounded-lg shadow-lg flex justify-between">
@@ -55,7 +65,7 @@ export default function PollutionMap() {
           <div>
             <PollutionMapSearchBox
               communeInseeCode={communeInseeCode}
-              onCommuneFilter={handleCommuneSelect}
+              onAddressFilter={handleAddressSelect}
             />
           </div>
           <div>
