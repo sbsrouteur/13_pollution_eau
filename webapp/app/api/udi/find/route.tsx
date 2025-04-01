@@ -4,30 +4,36 @@ import db from "@/app/lib/duckdb";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const lonParam = searchParams.get("lon");
+  const latParam = searchParams.get("lat");
+
+  if (lonParam == null || latParam == null) {
+    return NextResponse.json(
+      { message: "Paramètres manquants: lon et lat sont requis" },
+      { status: 400 },
+    );
+  }
+  const lon = parseFloat(lonParam);
+  const lat = parseFloat(latParam);
+
+  if (
+    isNaN(lon) ||
+    isNaN(lat) ||
+    lon < -180 ||
+    lon > 180 ||
+    lat < -90 ||
+    lat > 90
+  ) {
+    return NextResponse.json(
+      { message: "Paramètres invalides" },
+      { status: 400 },
+    );
+  }
+
+  const connection = await db.connect();
   try {
-    const { searchParams } = new URL(req.url);
-    const lonParam = searchParams.get("Lon");
-    const latParam = searchParams.get("Lat");
-
-    if (lonParam == null || latParam == null) {
-      return NextResponse.json(
-        { message: "Invalid parameters" },
-        { status: 403 },
-      );
-    }
-    const lon = parseFloat(lonParam);
-    const lat = parseFloat(latParam);
-
-    if (isNaN(lon) || isNaN(lat)) {
-      return NextResponse.json(
-        { message: "Invalid parameters" },
-        { status: 403 },
-      );
-    }
-
-    const connection = await db.connect();
-    await connection.run("INSTALL spatial;LOAD spatial;");
-    await connection.run("INSTALL json;LOAD json;");
+    await connection.run("LOAD spatial;");
     const querySql =
       "SELECT * EXCLUDE(geom) FROM atlasante_udi WHERE ST_Contains(geom, ST_GeomFromText( 'POINT(" +
       lon +
@@ -35,7 +41,7 @@ export async function GET(req: NextRequest) {
       lat +
       ")' ))";
     const result = await connection.runAndReadAll(querySql);
-    console.log(result);
+
     if (result.currentRowCount) {
       return NextResponse.json(
         { udis: result.getRowObjectsJson() },
@@ -43,7 +49,7 @@ export async function GET(req: NextRequest) {
       );
     } else {
       return NextResponse.json(
-        { message: "Aucune udi ne correspond à ces coordonnées" },
+        { message: "Aucune UDI ne correspond à ces coordonnées" },
         { status: 400 },
       );
     }
@@ -56,5 +62,7 @@ export async function GET(req: NextRequest) {
       },
       { status: 500 },
     );
+  } finally {
+    await connection.close();
   }
 }
