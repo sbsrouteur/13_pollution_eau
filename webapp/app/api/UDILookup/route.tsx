@@ -48,7 +48,13 @@ export async function GET(req: NextRequest) {
       );
     }
   } catch (error) {
-    console.log("db error", error);
-    return NextResponse.json({ message: error }, { status: 403 });
+    console.error("Erreur de base de données:", error);
+    return NextResponse.json(
+      {
+        message:
+          "Une erreur interne s'est produite. Veuillez réessayer ultérieurement.",
+      },
+      { status: 500 },
+    );
   }
 }
