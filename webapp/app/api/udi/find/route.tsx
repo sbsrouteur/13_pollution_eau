@@ -34,23 +34,29 @@ export async function GET(req: NextRequest) {
   const connection = await db.connect();
   try {
     await connection.run("LOAD spatial;");
-    const querySql =
-      "SELECT * EXCLUDE(geom) FROM atlasante_udi WHERE ST_Contains(geom, ST_GeomFromText( 'POINT(" +
-      lon +
-      " " +
-      lat +
-      ")' ))";
-    const result = await connection.runAndReadAll(querySql);
 
-    if (result.currentRowCount) {
+    const prepared = await connection.prepare(`
+      SELECT code_udi
+      FROM atlasante_udi
+      WHERE ST_Contains(geom, ST_GeomFromText($1::VARCHAR))
+      ORDER BY udi_pop DESC
+      LIMIT 1
+    `);
+
+    const point = `POINT(${lon} ${lat})`;
+    prepared.bindVarchar(1, point);
+
+    const result = await prepared.runAndReadAll();
+
+    if (result.currentRowCount > 0) {
       return NextResponse.json(
-        { udis: result.getRowObjectsJson() },
+        { id: result.getRowObjectsJson()[0]["code_udi"] },
         { status: 200 },
       );
     } else {
       return NextResponse.json(
         { message: "Aucune UDI ne correspond à ces coordonnées" },
-        { status: 400 },
+        { status: 404 },
       );
     }
   } catch (error) {
