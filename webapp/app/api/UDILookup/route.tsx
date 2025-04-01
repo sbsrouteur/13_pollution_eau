@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
         { status: 403 },
       );
     }
-    
+
     const connection = await db.connect();
     await connection.run("INSTALL spatial;LOAD spatial;");
     await connection.run("INSTALL json;LOAD json;");
