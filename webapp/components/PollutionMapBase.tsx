@@ -1,26 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactMapGl, {
   MapLayerMouseEvent,
   Marker,
   Popup,
   ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
-import maplibregl, { MapGeoJSONFeature } from "maplibre-gl";
+import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Protocol } from "pmtiles";
+import { generateColorExpression } from "@/lib/colorMapping";
 
 import { DEFAULT_MAP_STYLE, getDefaultLayers } from "@/app/config";
-import {
-  ZONE_GUADELOUPE,
-  ZONE_GUYANE,
-  ZONE_LAREUNION,
-  ZONE_MARTINIQUE,
-  ZONE_MAYOTTE,
-  ZONE_METROPOLE,
-  ZONE_NOZONE,
-} from "./MapZoneSelector";
+
 import { Pin } from "lucide-react";
 
 export type AddressInfos = {
@@ -30,35 +23,31 @@ export type AddressInfos = {
 };
 
 type PollutionMapBaseLayerProps = {
-  year: string;
-  categoryType: string;
+  period: string;
+  category: string;
+  displayMode: "communes" | "udis";
   communeInseeCode: string | null;
   mapState: { longitude: number; latitude: number; zoom: number };
-  onFeatureClick: (feature: MapGeoJSONFeature) => void;
+  setDataPanel: (data: Record<string, string | number | null> | null) => void;
   onMapStateChange?: (coords: {
     longitude: number;
     latitude: number;
     zoom: number;
   }) => void;
-  centerOnZone: number | null;
-  resetZone: () => void;
   selectedAddressCoords: AddressInfos | null;
 };
 
 export default function PollutionMapBaseLayer({
-  year,
-  categoryType,
+  period,
+  category,
+  displayMode,
   communeInseeCode,
   mapState,
-  onFeatureClick,
+  setDataPanel,
   onMapStateChange,
-  centerOnZone,
-  resetZone,
   selectedAddressCoords,
 }: PollutionMapBaseLayerProps) {
-  const [zone, setZone] = useState<number | null>(null);
   const [addressCoords, setAddressCoords] = useState<AddressInfos | null>(null);
-  const mapRef = useRef(null);
 
   useEffect(() => {
     // adds the support for PMTiles
@@ -69,55 +58,13 @@ export default function PollutionMapBaseLayer({
     };
   }, []);
 
-  const propertyId = `resultat_${categoryType}_${year}`;
-
   function onClick(event: MapLayerMouseEvent) {
     if (event.features && event.features.length > 0) {
+      console.log("zoom level:", mapState.zoom);
       console.log("Properties:", event.features[0].properties);
-      onFeatureClick(event.features[0]);
+      setDataPanel(event.features[0].properties);
     }
   }
-
-  useEffect(() => {
-    if (mapRef && centerOnZone) {
-      setZone(centerOnZone);
-
-      let newMapCenter: number[];
-      let newZoomFactor: number;
-
-      switch (centerOnZone) {
-        case ZONE_GUADELOUPE:
-          newMapCenter = [-61.5, 16.2];
-          newZoomFactor = 9;
-          break;
-        case ZONE_LAREUNION:
-          newMapCenter = [55.5, -21.2];
-          newZoomFactor = 8;
-          break;
-        case ZONE_MARTINIQUE:
-          newMapCenter = [-61, 14.7];
-          newZoomFactor = 9;
-          break;
-        case ZONE_MAYOTTE:
-          newMapCenter = [45, -12.75];
-          newZoomFactor = 9;
-          break;
-        case ZONE_GUYANE:
-          newMapCenter = [-52.7, 4.3];
-          newZoomFactor = 6;
-          break;
-        case ZONE_METROPOLE:
-        default:
-          newMapCenter = [2.5, 46.2];
-          newZoomFactor = 5;
-          break;
-      }
-
-      if (mapRef.current) {
-        mapRef.current.flyTo({ center: newMapCenter, zoom: newZoomFactor });
-      }
-    }
-  }, [mapRef, centerOnZone, zone]);
 
   if (selectedAddressCoords !== addressCoords) {
     setAddressCoords(selectedAddressCoords);
@@ -136,29 +83,60 @@ export default function PollutionMapBaseLayer({
   const mapStyle = useMemo(() => {
     const dynamicLayers: maplibregl.LayerSpecification[] = [
       {
-        id: "polluants",
+        id: "communes-layer",
         type: "fill",
-        source: "polluants",
-        "source-layer": "datacommunes",
+        source: "communes",
+        "source-layer": "data_communes",
         paint: {
-          "fill-color": [
-            "case",
-            ["==", ["get", propertyId], "conforme"],
-            "#00ff00", // Green for "conforme"
-            ["==", ["get", propertyId], "non analysé"],
-            "#808080", // Grey for "non analysé"
-            ["==", ["get", propertyId], "non conforme"],
-            "#ff0000", // Red for "non conforme"
-            "#808080", // Default color (grey) for any other value
-          ],
+          "fill-color": generateColorExpression(category, period),
           "fill-opacity": 0.5,
         },
-        // Ajout d'un filtre pour mettre en évidence la commune sélectionnée si présente
+        layout: {
+          visibility: displayMode === "communes" ? "visible" : "none",
+        },
         ...(communeInseeCode
           ? {
               filter: ["==", ["get", "commune_code_insee"], communeInseeCode],
             }
           : {}),
+      },
+      {
+        id: "udis-layer",
+        type: "fill",
+        source: "udis",
+        "source-layer": "data_udi",
+        paint: {
+          "fill-color": generateColorExpression(category, period),
+          "fill-opacity": 0.5,
+        },
+        layout: {
+          visibility: displayMode === "udis" ? "visible" : "none",
+        },
+        // Filter for UDIs if applicable
+        // ...(someUdiCode ? { filter: ["==", ["get", "udi_code"], someUdiCode] } : {}),
+      },
+      {
+        id: "udis-border-layer",
+        type: "line",
+        source: "udis",
+        "source-layer": "data_udi",
+        paint: {
+          "line-color": "#7F7F7F",
+          "line-width": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            0,
+            0.0, // At zoom level 0, line width is 0px
+            6,
+            0.0, // At zoom level 6, line width is 0px
+            20,
+            2.0, // At zoom level 20, line width is 2.0px
+          ],
+        },
+        layout: {
+          visibility: displayMode === "udis" ? "visible" : "none",
+        },
       },
     ];
 
@@ -166,14 +144,10 @@ export default function PollutionMapBaseLayer({
       ...DEFAULT_MAP_STYLE,
       layers: [...getDefaultLayers(), ...dynamicLayers],
     } as maplibregl.StyleSpecification;
-  }, [propertyId, communeInseeCode]);
+  }, [communeInseeCode, displayMode, category, period]);
 
-  function onMoveEnd(e: ViewStateChangeEvent): void {
-    if (e.originalEvent) {
-      setZone(ZONE_NOZONE);
-      resetZone();
-    }
-  }
+  const interactiveLayerIds =
+    displayMode === "communes" ? ["communes-layer"] : ["udis-layer"];
 
   function getCoordsMarker(): unknown {
     return (
@@ -233,15 +207,14 @@ export default function PollutionMapBaseLayer({
 
   return (
     <ReactMapGl
+      id="map"
       style={{ width: "100%", height: "100%" }}
       mapStyle={mapStyle}
       {...mapState}
       mapLib={maplibregl}
       onClick={onClick}
       onMove={handleMapStateChange}
-      onMoveEnd={onMoveEnd}
-      interactiveLayerIds={["polluants"]}
-      ref={mapRef}
+      interactiveLayerIds={interactiveLayerIds}
     >
       {addressCoords ? getCoordsMarker() : null}
     </ReactMapGl>
