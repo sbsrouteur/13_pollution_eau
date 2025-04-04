@@ -46,7 +46,6 @@ export default function PollutionMap() {
       setMarker(null);
     }
   };
-
   return (
     <div className="relative w-full h-full flex flex-col">
       <MapProvider>
@@ -62,11 +61,7 @@ export default function PollutionMap() {
           setMarker={setMarker}
         />
 
-        <div className="absolute top-4 left-4 right-4 z-10 bg-white p-3 rounded-lg shadow-lg flex justify-between">
-          <PollutionMapSearchBox
-            communeInseeCode={selectedZoneCode}
-            onAddressFilter={handleAddressSelect}
-          />
+        <div className="absolute top-4 right-4 left-4 z-10 px-2 flex justify-between overflow-x-auto scrollbar-hide">
           <PollutionMapFilters
             period={period}
             setPeriod={setPeriod}
@@ -74,6 +69,10 @@ export default function PollutionMap() {
             setCategory={setCategory}
             // displayMode={displayMode}
             // setDisplayMode={setDisplayMode}
+          />
+          <PollutionMapSearchBox
+            communeInseeCode={selectedZoneCode}
+            onAddressFilter={handleAddressSelect}
           />
         </div>
 
