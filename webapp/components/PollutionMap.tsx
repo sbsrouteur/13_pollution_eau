@@ -1,14 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import PollutionMapBaseLayer, {
-  AddressInfos,
-} from "@/components/PollutionMapBase";
+import { useState, JSX } from "react";
+import PollutionMapBaseLayer from "@/components/PollutionMapBase";
 import PollutionMapFilters from "@/components/PollutionMapFilters";
 import PollutionMapDetailPanel from "@/components/PollutionMapDetailPanel";
-import PollutionMapSearchBox, {
-  CommuneFilterResult,
-} from "./PollutionMapSearchBox";
+import PollutionMapSearchBox, { FilterResult } from "./PollutionMapSearchBox";
 import { MAPLIBRE_MAP } from "@/app/config";
 import { MapProvider } from "react-map-gl/maplibre";
 import MapZoneSelector from "./MapZoneSelector";
@@ -23,63 +19,62 @@ export default function PollutionMap() {
     latitude: number;
     zoom: number;
   }>(MAPLIBRE_MAP.initialViewState);
-  const [communeInseeCode, setCommuneInseeCode] = useState<string | null>(null);
-  const [addressCoords, setAddressCoords] = useState<AddressInfos | null>(null);
+  const [selectedZoneCode, setSelectedZoneCode] = useState<string | null>(null);
   const [dataPanel, setDataPanel] = useState<Record<
     string,
     string | number | null
   > | null>(null);
+  const [marker, setMarker] = useState<{
+    longitude: number;
+    latitude: number;
+    content: JSX.Element;
+  } | null>(null);
 
-  const handleAddressSelect = (result: CommuneFilterResult | null) => {
+  const handleAddressSelect = (result: FilterResult | null) => {
     if (result) {
       const { center, zoom, communeInseeCode, address } = result;
       setMapState({ longitude: center[0], latitude: center[1], zoom });
-      setCommuneInseeCode(communeInseeCode);
-      LookupUDI(center);
-      setAddressCoords({
-        lon: center[0],
-        lat: center[1],
-        AddressName: address,
+      setSelectedZoneCode(communeInseeCode);
+      //LookupUDI(center);
+      setMarker({
+        longitude: center[0],
+        latitude: center[1],
+        content: <>{address}</>,
       });
     } else {
-      setCommuneInseeCode(null);
-      setAddressCoords(null);
+      setSelectedZoneCode(null);
+      setMarker(null);
     }
   };
 
   return (
-    <MapProvider>
-      <div className="relative w-full h-full flex flex-col">
+    <div className="relative w-full h-full flex flex-col">
+      <MapProvider>
         <PollutionMapBaseLayer
           period={period}
           category={category}
           displayMode={displayMode}
-          communeInseeCode={communeInseeCode}
+          selectedZoneCode={selectedZoneCode}
           mapState={mapState}
           onMapStateChange={setMapState}
           setDataPanel={setDataPanel}
-          selectedAddressCoords={addressCoords}
+          marker={marker}
+          setMarker={setMarker}
         />
 
         <div className="absolute top-4 left-4 right-4 z-10 bg-white p-3 rounded-lg shadow-lg flex justify-between">
-          <div className="grow grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <PollutionMapSearchBox
-                communeInseeCode={communeInseeCode}
-                onAddressFilter={handleAddressSelect}
-              />
-            </div>
-            <div>
-              <PollutionMapFilters
-                period={period}
-                setPeriod={setPeriod}
-                category={category}
-                setCategory={setCategory}
-                // displayMode={displayMode}
-                // setDisplayMode={setDisplayMode}
-              />
-            </div>
-          </div>
+          <PollutionMapSearchBox
+            communeInseeCode={selectedZoneCode}
+            onAddressFilter={handleAddressSelect}
+          />
+          <PollutionMapFilters
+            period={period}
+            setPeriod={setPeriod}
+            category={category}
+            setCategory={setCategory}
+            // displayMode={displayMode}
+            // setDisplayMode={setDisplayMode}
+          />
         </div>
 
         <div className="absolute top-24 right-12 z-10 p-3">
@@ -97,8 +92,8 @@ export default function PollutionMap() {
             className="absolute bottom-6 left-4 z-10 bg-white p-3 rounded-lg shadow-lg max-w-xs"
           />
         )}
-      </div>
-    </MapProvider>
+      </MapProvider>
+    </div>
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, JSX } from "react";
 import ReactMapGl, {
   MapLayerMouseEvent,
   Marker,
@@ -11,22 +11,15 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Protocol } from "pmtiles";
 import { generateColorExpression } from "@/lib/colorMapping";
+import { MapPin } from "lucide-react";
 
 import { DEFAULT_MAP_STYLE, getDefaultLayers } from "@/app/config";
-
-import { Pin } from "lucide-react";
-
-export type AddressInfos = {
-  lon: number;
-  lat: number;
-  AddressName: string;
-};
 
 type PollutionMapBaseLayerProps = {
   period: string;
   category: string;
   displayMode: "communes" | "udis";
-  communeInseeCode: string | null;
+  selectedZoneCode: string | null;
   mapState: { longitude: number; latitude: number; zoom: number };
   setDataPanel: (data: Record<string, string | number | null> | null) => void;
   onMapStateChange?: (coords: {
@@ -34,21 +27,31 @@ type PollutionMapBaseLayerProps = {
     latitude: number;
     zoom: number;
   }) => void;
-  selectedAddressCoords: AddressInfos | null;
+  marker: {
+    longitude: number;
+    latitude: number;
+    content: JSX.Element;
+  } | null;
+  setMarker: (
+    marker: {
+      longitude: number;
+      latitude: number;
+      content: JSX.Element;
+    } | null,
+  ) => void;
 };
 
 export default function PollutionMapBaseLayer({
   period,
   category,
   displayMode,
-  communeInseeCode,
+  selectedZoneCode,
   mapState,
   setDataPanel,
   onMapStateChange,
-  selectedAddressCoords,
+  marker,
+  //setMarker,
 }: PollutionMapBaseLayerProps) {
-  const [addressCoords, setAddressCoords] = useState<AddressInfos | null>(null);
-
   useEffect(() => {
     // adds the support for PMTiles
     const protocol = new Protocol();
@@ -64,10 +67,6 @@ export default function PollutionMapBaseLayer({
       console.log("Properties:", event.features[0].properties);
       setDataPanel(event.features[0].properties);
     }
-  }
-
-  if (selectedAddressCoords !== addressCoords) {
-    setAddressCoords(selectedAddressCoords);
   }
 
   function handleMapStateChange(e: ViewStateChangeEvent) {
@@ -94,9 +93,9 @@ export default function PollutionMapBaseLayer({
         layout: {
           visibility: displayMode === "communes" ? "visible" : "none",
         },
-        ...(communeInseeCode
+        ...(selectedZoneCode
           ? {
-              filter: ["==", ["get", "commune_code_insee"], communeInseeCode],
+              filter: ["==", ["get", "commune_code_insee"], selectedZoneCode],
             }
           : {}),
       },
@@ -144,66 +143,10 @@ export default function PollutionMapBaseLayer({
       ...DEFAULT_MAP_STYLE,
       layers: [...getDefaultLayers(), ...dynamicLayers],
     } as maplibregl.StyleSpecification;
-  }, [communeInseeCode, displayMode, category, period]);
+  }, [selectedZoneCode, displayMode, category, period]);
 
   const interactiveLayerIds =
     displayMode === "communes" ? ["communes-layer"] : ["udis-layer"];
-
-  function getCoordsMarker(): unknown {
-    return (
-      <>
-        <Marker longitude={addressCoords.lon} latitude={addressCoords.lat}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            className="lucide w-8 h-8"
-          >
-            <path d="M15 22a1 1 0 0 1-1-1v-4a1 1 0 0 1 .445-.832l3-2a1 1 0 0 1 1.11 0l3 2A1 1 0 0 1 22 17v4a1 1 0 0 1-1 1z" />
-            <path
-              d="M18 10a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 .601.2"
-              fill="white"
-              color="white"
-            />
-            <path d="M18 22v-3" />
-          </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            className="lucide -mt-7 ml-1.5"
-          >
-            <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" />
-          </svg>
-        </Marker>
-        <Popup
-          longitude={addressCoords.lon}
-          latitude={addressCoords.lat}
-          anchor="bottom"
-          className="-mt-5"
-          closeButton={false}
-        >
-          <span className="font-bold ">{addressCoords?.AddressName}</span>
-          <br />
-          <span className="opacity-35">
-            Cette adresse est désservie par une unité de distribution.
-          </span>
-        </Popup>
-      </>
-    );
-  }
 
   return (
     <ReactMapGl
@@ -216,7 +159,35 @@ export default function PollutionMapBaseLayer({
       onMove={handleMapStateChange}
       interactiveLayerIds={interactiveLayerIds}
     >
-      {addressCoords ? getCoordsMarker() : null}
+      {marker ? (
+        <>
+          <Marker longitude={marker.longitude} latitude={marker.latitude}>
+            <MapPin
+              size={32}
+              className="text-primary-foreground"
+              strokeWidth={1}
+              stroke="black"
+              stroke-width="1"
+              fill="white"
+              color="white"
+            />
+          </Marker>
+          <Popup
+            longitude={marker.longitude}
+            latitude={marker.latitude}
+            anchor="bottom"
+            className="-mt-5"
+            closeButton={false}
+            closeOnClick={false}
+          >
+            <span className="font-bold ">{marker.content}</span>
+            <br />
+            <span className="opacity-35">
+              Cette adresse est désservie par une unité de distribution.
+            </span>
+          </Popup>
+        </>
+      ) : null}
     </ReactMapGl>
   );
 }

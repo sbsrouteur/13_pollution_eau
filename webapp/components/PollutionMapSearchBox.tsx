@@ -25,7 +25,7 @@ interface IGNQueryResult {
 interface IGNQueryResponse {
   features: IGNQueryResult[];
 }
-export type CommuneFilterResult = {
+export type FilterResult = {
   center: [number, number];
   zoom: number;
   communeInseeCode: string;
@@ -33,7 +33,7 @@ export type CommuneFilterResult = {
 };
 
 interface PollutionMapsSearchBoxProps {
-  onAddressFilter: (communeFilter: CommuneFilterResult | null) => void;
+  onAddressFilter: (communeFilter: FilterResult | null) => void;
   communeInseeCode: string | null;
 }
 
@@ -57,6 +57,7 @@ export default function PollutionMapSearchBox({
       const data: IGNQueryResponse = await response.json();
 
       if (data.features) {
+        console.log("fetch data :", data.features);
         setCommunesList(data.features);
         setDropDownOpen(true);
       } else {
@@ -113,23 +114,28 @@ export default function PollutionMapSearchBox({
   }
 
   return (
-    <div className="flex grow items-center space-x-6">
-      <div className="w-full">
+    <div className="flex items-center space-x-6">
+      <div>
         <label
           htmlFor="commune-select"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
           Commune
         </label>
-        <div className="relative ">
+        <div className="relative">
           <Popover open={dropDownIsOpened} onOpenChange={setDropDownOpen}>
             <PopoverAnchor asChild>
               <Input
-                className="rounded-sm outline-1 outline-blue-500 pr-8"
+                className="float max-w-fit rounded-sm outline-1 outline-blue-500 pr-8"
                 key="TextInputCommune"
                 value={filterString}
                 placeholder="Saisir le nom de votre commune"
                 onChange={HandleFilterChange}
+                onFocus={() => {
+                  if (filterString?.length >= 3) {
+                    setDropDownOpen(true);
+                  }
+                }}
               />
             </PopoverAnchor>
             <PopoverContent
@@ -138,36 +144,37 @@ export default function PollutionMapSearchBox({
               align="start"
               sideOffset={5}
             >
-              <Command className="flex w-full">
+              <Command>
                 <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
                   Aucune commune trouvée.
                 </CommandEmpty>
-                <CommandList className="grow">
+                <CommandList>
                   <CommandGroup key="CommuneList">
-                    {communesList.map((CommuneFeature) => {
-                      let featureType = null;
-                      switch (CommuneFeature.properties.type) {
+                    {communesList.map((feature) => {
+                      let featureType = <Home />;
+
+                      switch (feature.properties.type) {
                         case "street":
                         case "housenumber":
                           featureType = <Home />;
                           break;
                         default:
-                          featureType = null;
-                          return null;
+                          featureType = <Building2 />;
                       }
                       return (
                         <CommandItem
                           className="flex grow"
-                          key={CommuneFeature.properties.id}
-                          onSelect={() => handleAddressSelect(CommuneFeature)}
+                          key={feature.properties.id}
+                          onSelect={() => handleAddressSelect(feature)}
                         >
                           <div className="flex grow">
                             <div className="size-5">{featureType}</div>
                             <div className="grow gap-2 fit">
                               <HilightLabel
-                                originalText={CommuneFeature.properties.label}
+                                originalText={feature.properties.label}
                                 textToHilight={filterString}
                               />
+                              {feature.properties.banId}
                             </div>
                           </div>
                         </CommandItem>
