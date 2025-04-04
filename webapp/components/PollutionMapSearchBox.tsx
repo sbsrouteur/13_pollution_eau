@@ -165,6 +165,7 @@ export default function PollutionMapSearchBox({
                         <CommandItem
                           className="flex grow"
                           key={feature.properties.id}
+                          value={feature.properties.id}
                           onSelect={() => handleAddressSelect(feature)}
                         >
                           <div className="flex grow">

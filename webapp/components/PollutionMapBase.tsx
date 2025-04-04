@@ -167,7 +167,6 @@ export default function PollutionMapBaseLayer({
               className="text-primary-foreground"
               strokeWidth={1}
               stroke="black"
-              stroke-width="1"
               fill="white"
               color="white"
             />
