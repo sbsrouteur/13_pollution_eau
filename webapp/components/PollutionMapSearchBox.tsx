@@ -129,7 +129,7 @@ export default function PollutionMapSearchBox({
                 className="float max-w-fit rounded-sm outline-1 outline-blue-500 pr-8"
                 key="TextInputCommune"
                 value={filterString}
-                placeholder="Saisir le nom de votre commune"
+                placeholder="Saisir votre adresse ou commune"
                 onChange={HandleFilterChange}
                 onFocus={() => {
                   if (filterString?.length >= 3) {
@@ -146,7 +146,7 @@ export default function PollutionMapSearchBox({
             >
               <Command>
                 <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
-                  Aucune commune trouvée.
+                  Aucune adresse trouvée.
                 </CommandEmpty>
                 <CommandList>
                   <CommandGroup key="CommuneList">
