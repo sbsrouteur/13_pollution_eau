@@ -174,7 +174,6 @@ export default function PollutionMapSearchBox({
                                 originalText={feature.properties.label}
                                 textToHilight={filterString}
                               />
-                              {feature.properties.banId}
                             </div>
                           </div>
                         </CommandItem>
