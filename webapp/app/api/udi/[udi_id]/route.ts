@@ -77,6 +77,11 @@ async function GetUDIAdministrativeData(udi_id: string): UDI | null {
     console.log("exception in GetUDIData for UDI", udi_id, ex);
     return null;
   }
+  finally
+  {
+if (connection)
+  connection.close()
+  }
 }
 
 function GetUDIData(udi_id: string, result: DuckDBResultReader) {
