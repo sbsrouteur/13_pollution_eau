@@ -41,13 +41,13 @@ interface Synthese {
   status_polluants: { polluant_nom: string; polluant_categorie: string }[];
 }
 
-interface Data {
+export interface Data {
   periode: string;
   synthese: Synthese[];
   categories: Categorie[];
 }
 
-interface UDI {
+export interface UDI {
   id: string;
   nom: string;
   communes_desservies: { nom: string; code_insee: string }[];
