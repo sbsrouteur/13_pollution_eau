@@ -18,7 +18,7 @@ interface SousCategorie {
   sous_categorie_blocs: StatutBloc[];
 }
 
-interface Categorie {
+export interface Categorie {
   categorie_id: string;
   categorie: string;
   statut_titre: string;
