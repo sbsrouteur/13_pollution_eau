@@ -76,11 +76,8 @@ async function GetUDIAdministrativeData(udi_id: string): UDI | null {
   } catch (ex) {
     console.log("exception in GetUDIData for UDI", udi_id, ex);
     return null;
-  }
-  finally
-  {
-if (connection)
-  connection.close()
+  } finally {
+    if (connection) connection.close();
   }
 }
 
@@ -112,17 +109,14 @@ function GetUDIData(udi_id: string, result: DuckDBResultReader) {
         categorie_id: row.categorie,
         categorie: row.categorie,
         dernier_prelevement_date: recordDate,
-  
+      };
+
+      if (row.nb_parametres) {
+        dataRecord.dernier_prelevement_nb_polluants = Number(row.nb_parametres);
       }
 
-      if (row.nb_parametres)
-      {
-        dataRecord.dernier_prelevement_nb_polluants=Number(row.nb_parametres)
-      }
-
-      if (row.resultat)
-      {
-        dataRecord.statut_titre=row.resultat
+      if (row.resultat) {
+        dataRecord.statut_titre = row.resultat;
       }
 
       curPeriode.categorie.push(dataRecord);
