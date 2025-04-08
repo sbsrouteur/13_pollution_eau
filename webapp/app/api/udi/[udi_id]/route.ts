@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       { status: 400 },
     );
   }
-  const RetUDIData = udi_id ? await GetUDIAdministrativeData(udi_id) : null;
+  const RetUDIData = await GetUDIAdministrativeData(udi_id);
 
   if (RetUDIData) {
     return NextResponse.json(RetUDIData, { status: 200 });
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 async function GetUDIAdministrativeData(udi_id: string): UDI | null {
   const connection = await db.connect();
   try {
-    let retUDI: UDI = {
+    const retUDI: UDI = {
       id: udi_id,
       communes_desservies: [],
       nom: "",
@@ -42,7 +42,7 @@ async function GetUDIAdministrativeData(udi_id: string): UDI | null {
     `);
 
     const prepared2 = await connection.prepare(`
-      SELECT periode, categorie , resultat , dernier_prel_datetime
+      SELECT periode, categorie , resultat , dernier_prel_datetime, nb_parametres
       FROM web__resultats_udi 
       WHERE cdreseau = $1::VARCHAR
       order by periode, categorie
@@ -66,8 +66,9 @@ async function GetUDIAdministrativeData(udi_id: string): UDI | null {
       });
 
       const result2 = await prepared2.runAndReadAll();
-      retUDI.data = GetUDIData(udi_id, result2);
-
+      const data = GetUDIData(udi_id, result2);
+      retUDI.data = data;
+      //console.log("1st function", JSON.stringify(data), data);
       return retUDI;
     }
 
@@ -78,43 +79,56 @@ async function GetUDIAdministrativeData(udi_id: string): UDI | null {
   }
 }
 
-function GetUDIData(udi_id: string, result: DuckDBResultReader): Data[] {
-  const localMap = {};
-  const cats = {};
-  const retData: Data[] = [];
+function GetUDIData(udi_id: string, result: DuckDBResultReader) {
+  const periodes: Data[] = [];
 
   if (result.currentRowCount > 0) {
-    const rows = result.getRowObjectsJson();
+    const rows = result.getRowObjects();
 
     rows.map((row) => {
-      if (!localMap[row.periode]) {
-        localMap[row.periode] = [
-          { categorie: row.categorie, resultat: row.resultat },
-        ];
-      } else {
-        localMap[row.periode].push({
-          categorie: row.categorie,
-          resultat: row.resultat,
-        });
+      let codePeriode = row.periode?.toString();
+      let nomPeriode = codePeriode;
+      if (codePeriode?.startsWith("bilan_annuel_")) {
+        nomPeriode = codePeriode.substring(13, codePeriode.length);
       }
 
-      if (!cats[row.categorie]) {
-        cats[row.categorie] = {
-          categorie_id: row.categorie,
-          categorie: row.categorie,
-          dernier_prelevement_date: row.dernier_prel_datetime,
-        };
-      } else if (
-        cats[row.categorie] == null ||
-        cats[row.categorie].dernier_prelevement_date < row.dernier_prel_datetime
-      ) {
-        cats[row.categorie].dernier_prelevement_date =
-          row.dernier_prel_datetime;
+      //
+      if (!periodes[codePeriode]) {
+        periodes[codePeriode] = { periode: nomPeriode, categorie: [] };
       }
+
+      const curPeriode = periodes[codePeriode];
+      let recordDate = null;
+      if (row.dernier_prel_datetime) {
+        recordDate = new Date(row.dernier_prel_datetime);
+      }
+
+      const dataRecord = {
+        categorie_id: row.categorie,
+        categorie: row.categorie,
+        dernier_prelevement_date: recordDate,
+  
+      }
+
+      if (row.nb_parametres)
+      {
+        dataRecord.dernier_prelevement_nb_polluants=Number(row.nb_parametres)
+      }
+
+      if (row.resultat)
+      {
+        dataRecord.statut_titre=row.resultat
+      }
+
+      curPeriode.categorie.push(dataRecord);
     });
-    retData.categories = localMap;
+  }
+
+  const retData: data[] = [];
+
+  for (let x in periodes) {
+    retData.push(periodes[x]);
   }
   console.log("returning ", retData);
-
   return retData;
 }
