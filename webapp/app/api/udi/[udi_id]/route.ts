@@ -120,7 +120,7 @@ function GetUDIData(udi_id: string, result: DuckDBResultReader) {
         dernier_prelevement_date: "",
         dernier_prelevement_nb_polluants: 0,
         affichage_blocs: false,
-        statut_blocs: []
+        statut_blocs: [],
       };
       let recordDate: Date | null = null;
       if (row.dernier_prel_datetime) {
