@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Categorie, Data, mockData, UDI } from "@/app/lib/mock-data";
-import { UUID } from "crypto";
 import db from "@/app/lib/duckdb";
-import { DuckDBPreparedStatement, Json } from "@duckdb/node-api";
 import { DuckDBResultReader } from "@duckdb/node-api/lib/DuckDBResultReader";
+import { Categorie, Data, StatutBloc, UDI } from "@/app/lib/mock-data";
+import { getCategoryById } from "@/lib/polluants";
 
 export async function GET(request: NextRequest) {
   const { pathname } = new URL(request.url);
@@ -58,7 +57,7 @@ async function GetUDIAdministrativeData(udi_id: string): Promise<UDI | null> {
       if (rows[0].uge_nom) {
         retUDI.nom = rows[0].uge_nom.toString();
       } else {
-        throw "Udi must have a name!";
+        throw new Error("UDI doit avoir un nom !");
       }
 
       rows.map((row) => {
@@ -85,7 +84,7 @@ async function GetUDIAdministrativeData(udi_id: string): Promise<UDI | null> {
   }
 }
 
-function GetUDIData(udi_id: string, result: DuckDBResultReader) {
+function GetUDIData(udi_id: string, result: DuckDBResultReader): Data[] {
   const periodes: { [key: string]: Data } = {};
 
   if (result.currentRowCount > 0) {
@@ -141,14 +140,59 @@ function GetUDIData(udi_id: string, result: DuckDBResultReader) {
         dataRecord.statut_titre = row.resultat.toString();
       }
 
+      PopulateCategoryFields(dataRecord);
+
       curPeriode.categories.push(dataRecord);
     });
   }
 
   const retData: Data[] = [];
 
-  for (let x in periodes) {
+  for (const x in periodes) {
     retData.push(periodes[x]);
   }
   return retData;
+}
+function PopulateCategoryFields(dataRecord: Categorie) {
+  const infoCategorie = getCategoryById(dataRecord.categorie_id);
+
+  if (infoCategorie) {
+    dataRecord.categorie = infoCategorie.nomAffichage;
+    dataRecord.statut_description = infoCategorie.description;
+
+    if (infoCategorie.resultats) {
+      const infoStatut = infoCategorie.resultats[dataRecord.statut_titre];
+
+      if (infoStatut) {
+        dataRecord.statut_titre = infoStatut.label;
+        dataRecord.statut_couleur = infoStatut.couleur;
+        if (infoStatut.couleurFond) {
+          dataRecord.statut_couleur_background = infoStatut.couleurFond;
+        }
+        if (infoStatut.picto) {
+          dataRecord.statut_picto = infoStatut.picto;
+        }
+      }
+      dataRecord.affichage_blocs = true;
+
+      for (const key in infoCategorie.resultats) {
+        const res = infoCategorie.resultats[key];
+        const SB: StatutBloc = {
+          bloc_nom: res.label,
+          bloc_couleur: res.couleur,
+          bloc_couleur_background: "",
+          bloc_picto: null,
+          bloc_polluants: [],
+        };
+        if (res.couleurFond) {
+          SB.bloc_couleur_background = res.couleurFond;
+        }
+        if (res.picto) {
+          SB.bloc_picto = res.picto;
+        }
+
+        dataRecord.statut_blocs.push(SB);
+      }
+    }
+  }
 }

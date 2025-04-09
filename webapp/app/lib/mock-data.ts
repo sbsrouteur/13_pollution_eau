@@ -5,7 +5,7 @@ interface Polluant {
   polluant_valeur?: string | null;
 }
 
-interface StatutBloc {
+export interface StatutBloc {
   bloc_nom: string;
   bloc_couleur: string;
   bloc_couleur_background: string;
