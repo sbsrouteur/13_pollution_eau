@@ -72,7 +72,7 @@ export default function PollutionMapDetailPanel({
   );
 }
 
-function StatusIndicator({ status }: { status: string }) {
+/*function StatusIndicator({ status }: { status: string }) {
   let bgColor = "bg-gray-400";
 
   if (status === "conforme") {
@@ -86,4 +86,4 @@ function StatusIndicator({ status }: { status: string }) {
   return (
     <span className={`inline-block w-3 h-3 ${bgColor} rounded-full`}></span>
   );
-}
+}*/

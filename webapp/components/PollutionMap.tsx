@@ -9,6 +9,8 @@ import PollutionMapSearchBox, { FilterResult } from "./PollutionMapSearchBox";
 import { MAPLIBRE_MAP } from "@/app/config";
 import { MapProvider } from "react-map-gl/maplibre";
 import MapZoneSelector from "./MapZoneSelector";
+import PollutionMapLegend from "./PollutionMapLegend";
+import { HamburgerButton } from "./ui/hamburger-button";
 import { clsx } from "clsx";
 
 export default function PollutionMap() {
@@ -32,6 +34,8 @@ export default function PollutionMap() {
     content: JSX.Element;
   } | null>(null);
   const [sidePanelOpen, setSidePanelOpen] = useState(true);
+
+  const [showLegend, setShowLegend] = useState(true);
 
   const handleAddressSelect = (result: FilterResult | null) => {
     if (result) {
@@ -96,6 +100,22 @@ export default function PollutionMap() {
           <MapZoneSelector />
         </div>
 
+        <div className="absolute left-4 bottom-4">
+          <HamburgerButton
+            visible={!showLegend}
+            onClick={() => setShowLegend(!showLegend)}
+          />
+        </div>
+
+        {showLegend && (
+          <div className="absolute left-4 bottom-4">
+            <PollutionMapLegend
+              category={category}
+              onClose={() => setShowLegend(false)}
+            />
+          </div>
+        )}
+
         {/* Right side panel with handle */}
         <div className="absolute top-0 right-0 h-full z-10">
           {/* Panel handle - always visible */}
@@ -129,7 +149,7 @@ export default function PollutionMap() {
           <PollutionMapDetailPanel
             data={dataPanel}
             onClose={() => setDataPanel(null)}
-            className="absolute bottom-6 left-4 z-10 bg-white p-3 rounded-lg shadow-lg max-w-xs"
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-4 rounded-lg shadow-lg max-w-md"
           />
         )}
       </MapProvider>
@@ -137,8 +157,8 @@ export default function PollutionMap() {
   );
 }
 
-async function LookupUDI(center: [number, number]) {
-  /*try {
+/*async function LookupUDI(center: [number, number]) {
+  try {
     const fecthUrl =
       "/api/UDILookup?Lon=" + center[0] + "&Lat=" + center[1] + "";
     console.log("Lookup UDI", fecthUrl);
@@ -146,5 +166,5 @@ async function LookupUDI(center: [number, number]) {
     const UDIInfo = await response.json();
 
     alert("UDI "+UDIInfo.nomUDI)
-  } catch (ex) {}*/
-}
+  } catch (ex) {}
+}*/
