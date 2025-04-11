@@ -9,6 +9,8 @@ import PollutionMapSearchBox, { FilterResult } from "./PollutionMapSearchBox";
 import { MAPLIBRE_MAP } from "@/app/config";
 import { MapProvider } from "react-map-gl/maplibre";
 import MapZoneSelector from "./MapZoneSelector";
+import PollutionMapLegend from "./PollutionMapLegend";
+import { HamburgerButton } from "./ui/hamburger-button";
 import { clsx } from "clsx";
 
 export default function PollutionMap() {
@@ -32,6 +34,8 @@ export default function PollutionMap() {
     content: JSX.Element;
   } | null>(null);
   const [sidePanelOpen, setSidePanelOpen] = useState(true);
+
+  const [showLegend, setShowLegend] = useState(true);
 
   const handleAddressSelect = (result: FilterResult | null) => {
     if (result) {
@@ -95,6 +99,22 @@ export default function PollutionMap() {
         >
           <MapZoneSelector />
         </div>
+
+        <div className="absolute left-4 bottom-4">
+          <HamburgerButton
+            visible={!showLegend}
+            onClick={() => setShowLegend(!showLegend)}
+          />
+        </div>
+
+        {showLegend && (
+          <div className="absolute left-4 bottom-4">
+            <PollutionMapLegend
+              category={category}
+              onClose={() => setShowLegend(false)}
+            />
+          </div>
+        )}
 
         {/* Right side panel with handle */}
         <div className="absolute top-0 right-0 h-full z-10">
