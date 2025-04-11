@@ -149,7 +149,7 @@ export default function PollutionMap() {
           <PollutionMapDetailPanel
             data={dataPanel}
             onClose={() => setDataPanel(null)}
-            className="absolute bottom-6 left-4 z-10 bg-white p-3 rounded-lg shadow-lg max-w-xs"
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-4 rounded-lg shadow-lg max-w-md"
           />
         )}
       </MapProvider>
@@ -157,8 +157,8 @@ export default function PollutionMap() {
   );
 }
 
-async function LookupUDI(center: [number, number]) {
-  /*try {
+/*async function LookupUDI(center: [number, number]) {
+  try {
     const fecthUrl =
       "/api/UDILookup?Lon=" + center[0] + "&Lat=" + center[1] + "";
     console.log("Lookup UDI", fecthUrl);
@@ -166,5 +166,5 @@ async function LookupUDI(center: [number, number]) {
     const UDIInfo = await response.json();
 
     alert("UDI "+UDIInfo.nomUDI)
-  } catch (ex) {}*/
-}
+  } catch (ex) {}
+}*/
